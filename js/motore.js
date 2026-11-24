@@ -500,12 +500,19 @@ function giaUsato() {
   return h("div", { class: "esito" }, h("b", null, "Su questo browser c'è già un lavoro in corso" + (S.nome ? " di " + S.nome : "") + ": " + iniziate + (iniziate === 1 ? " attività iniziata." : " attività iniziate.")), "Se è tuo, continua pure. Se il telefono o il computer prima l'ha usato qualcun altro, ricomincia da zero.", h("div", { class: "pila" }, b, conf));
 }
 
+function codiceQR(cls, scala) {
+  var box = h("div", { class: cls });
+  try { var q = window.qrcode(0, "M"); q.addData(APP.link); q.make(); box.innerHTML = q.createSvgTag(scala, 4); box.firstChild.setAttribute("role", "img"); box.firstChild.setAttribute("aria-label", "Codice QR per aprire " + APP.link); } catch (e) { box.textContent = APP.link; }
+  return box;
+}
+
 function vistaHome() {
   var id = "nome";
   var inp = h("input", { id: id, type: "text", placeholder: "Nome o soprannome", autocomplete: "off", maxlength: "30" });
   inp.value = S.nome; inp.addEventListener("input", function () { S.nome = inp.value; salva(); });
   monta(
     h("div", { class: "banda casa" }, h("h1", null, "Recuperi apprendistato"), h("p", null, "Modulo 1 · Sicurezza, organizzazione e qualità. Quattro ore di sfide con il tuo telefono e con l'intelligenza artificiale.")),
+    h("div", { class: "scheda entra" }, codiceQR("qr-piccolo", 4), h("div", { class: "pila" }, h("h3", null, "Entra con il telefono"), h("p", { class: "sotto" }, "Inquadra il codice con la fotocamera, oppure scrivi:"), h("p", { class: "link-breve" }, APP.link.replace(/^https:\/\//, "").replace(/\/$/, "")))),
     giaUsato(),
     h("div", { class: "scheda" }, h("label", { for: id }, "Come ti chiami?"), inp, h("p", { class: "sotto" }, "Resta solo su questo telefono, come tutte le tue risposte.")),
     h("h2", null, "Scegli la tua lezione"),
@@ -705,8 +712,7 @@ function vistaTessera() {
 }
 
 function vistaDocente() {
-  var qr = h("div", { class: "qr" });
-  try { var q = window.qrcode(0, "M"); q.addData(APP.link); q.make(); qr.innerHTML = q.createSvgTag(6, 8); } catch (e) { qr.textContent = APP.link; }
+  var qr = codiceQR("qr", 6);
   function orario(l) {
     var t = 0, righe = [];
     function riga(min, cosa, uf) { var da = t; t += min; righe.push(h("tr", null, h("td", { class: "ore" }, fmt(da) + " – " + fmt(t)), h("td", null, cosa, uf ? [" ", h("span", { class: "chip " + uf }, UF[uf])] : null))); }
