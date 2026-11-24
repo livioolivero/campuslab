@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recuperi apprendistato</title>
+<style>
+:root {
+  /* stile «quaderno chiaro»: pagina bianca, un inchiostro scuro, una tinta tenue per ogni area */
+  --carta: #ffffff;
+  --fondo: #f6f5f1;
+  --inchiostro: #2c2c2a;
+  --tenue: #5f5e5a;
+  --filo: #dddbd3;
+  --link: #185fa5;
+  --ok: #27500a; --ok-fondo: #eaf3de; --ok-filo: #639922;
+  --ko: #791f1f; --ko-fondo: #fcebeb; --ko-filo: #e24b4a;
+  --sic: #fbeee9; --sic-et: #993c1d; --sic-tit: #712b13;
+  --com: #e9f2fb; --com-et: #185fa5; --com-tit: #0c447c;
+  --qua: #faf0de; --qua-et: #854f0b; --qua-tit: #633806;
+  --ia: #efeefe;  --ia-et: #534ab7;  --ia-tit: #3c3489;
+  --tut: #f1efe8; --tut-et: #5f5e5a; --tut-tit: #2c2c2a;
+  --ver: #e1f5ee; --ver-et: #0f6e56; --ver-tit: #085041;
+  /* tinte per le icone e colori pieni per le fasce in alto */
+  --sic-ico: #f5c4b3; --com-ico: #b5d4f4; --qua-ico: #fac775; --ia-ico: #cecbf6; --tut-ico: #d3d1c7; --ver-ico: #9fe1cb;
+  --sic-forte: #c4502a; --com-forte: #185fa5; --qua-forte: #a8650f; --ia-forte: #534ab7; --tut-forte: #444441; --ver-forte: #0f6e56;
+  --testo: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --titolo: Georgia, "Times New Roman", serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--carta); color: var(--inchiostro); font-family: var(--testo); font-size: 17px; line-height: 1.5; }
+#app { max-width: 40rem; margin: 0 auto; padding: 20px 18px 56px; display: flex; flex-direction: column; gap: 18px; }
+h1, h2, h3 { margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-family: var(--titolo); font-weight: 400; font-size: 2rem; }
+h2 { font-size: 1.3rem; font-weight: 600; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--link); }
+.sotto { color: var(--tenue); }
+.saluto { color: var(--tenue); font-size: 0.95rem; }
+.scheda { background: var(--carta); border: 1px solid var(--filo); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.pila { display: flex; flex-direction: column; gap: 10px; }
+.riga { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.spinta { margin-left: auto; }
+label { font-weight: 600; }
+input[type=text], input[type=email], textarea { width: 100%; font: inherit; color: inherit; background: var(--carta); border: 1px solid #b4b2a9; border-radius: 10px; padding: 11px 12px; }
+textarea { min-height: 5.5em; resize: vertical; }
+input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, [role=button]:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.btn { font: 600 1rem var(--testo); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 8px 18px; border-radius: 12px; border: 1px solid #b4b2a9; background: var(--carta); color: var(--inchiostro); }
+.btn.primo, .btn.scuro { background: var(--inchiostro); border-color: var(--inchiostro); color: #fff; }
+.btn.piccolo { font-size: 0.95rem; min-height: 40px; padding: 4px 14px; }
+.btn.spento { opacity: 0.4; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn.largo { width: 100%; }
+
+/* voci di elenco: lezioni e attività */
+a.voce { display: flex; gap: 12px; align-items: center; text-decoration: none; color: inherit; background: var(--carta); border: 1px solid var(--filo); border-radius: 14px; padding: 14px 16px; }
+a.voce .tit { font-size: 1.08rem; font-weight: 600; display: block; line-height: 1.25; }
+a.voce .desc { color: var(--tenue); font-size: 0.92rem; display: block; margin-top: 2px; }
+a.voce .et { font-size: 0.82rem; display: block; margin-bottom: 2px; }
+a.voce .stato { margin-left: auto; text-align: right; white-space: nowrap; font-size: 0.88rem; font-weight: 600; color: var(--tenue); }
+a.voce .stato.corso { color: var(--link); }
+a.voce.sic { background: var(--sic); border-color: transparent; } a.voce.sic .et, a.voce.sic .desc { color: var(--sic-et); } a.voce.sic .tit { color: var(--sic-tit); }
+a.voce.com, a.voce.dir { background: var(--com); border-color: transparent; } a.voce.com .et, a.voce.com .desc, a.voce.dir .et, a.voce.dir .desc { color: var(--com-et); } a.voce.com .tit, a.voce.dir .tit { color: var(--com-tit); }
+a.voce.qua { background: var(--qua); border-color: transparent; } a.voce.qua .et, a.voce.qua .desc { color: var(--qua-et); } a.voce.qua .tit { color: var(--qua-tit); }
+a.voce.ia  { background: var(--ia);  border-color: transparent; } a.voce.ia .et,  a.voce.ia .desc  { color: var(--ia-et); }  a.voce.ia .tit  { color: var(--ia-tit); }
+a.voce.tut { background: var(--tut); border-color: transparent; } a.voce.tut .et, a.voce.tut .desc { color: var(--tut-et); } a.voce.tut .tit { color: var(--tut-tit); }
+a.voce.fatta { background: var(--carta); border-color: var(--filo); }
+a.voce.fatta .tit { color: var(--inchiostro); }
+a.voce.fatta .et { color: var(--ok); font-weight: 600; }
+a.voce.fatta .desc { color: var(--tenue); }
+.pausa { display: flex; align-items: center; gap: 12px; color: var(--tenue); font-size: 0.9rem; }
+.pausa::before, .pausa::after { content: ""; flex: 1; border-top: 1px solid var(--filo); }
+.chip { display: inline-block; white-space: nowrap; font-size: 0.82rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: var(--tut); color: var(--tut-et); }
+.chip.sic { background: var(--sic); color: var(--sic-et); }
+.chip.com, .chip.dir { background: var(--com); color: var(--com-et); }
+.chip.qua { background: var(--qua); color: var(--qua-et); }
+.chip.ia { background: var(--ia); color: var(--ia-et); }
+.chip.vuoto { background: transparent; color: var(--tenue); border: 1px solid var(--filo); }
+.regole { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; }
+
+/* dentro un'attività */
+.testa { display: flex; align-items: center; gap: 10px; }
+.testa .tit { font-size: 1.1rem; font-weight: 600; line-height: 1.2; }
+.tacche { display: flex; gap: 4px; }
+.tacche span { flex: 1; height: 6px; border-radius: 3px; background: var(--filo); }
+.tacche span.fatta { background: var(--ok-filo); }
+.tacche span.ora { background: var(--inchiostro); }
+.conta { font-size: 0.88rem; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.dom { font-size: 1.12rem; font-weight: 600; }
+.cit { margin: 0; padding: 12px 14px; background: var(--com); color: var(--com-tit); border-radius: 12px; }
+.opz { display: flex; flex-direction: column; gap: 8px; }
+.opz.griglia { display: grid; grid-template-columns: 1fr 1fr; }
+.op { text-align: left; min-height: 48px; padding: 11px 14px; border-radius: 12px; border: 1px solid #b4b2a9; background: var(--carta); }
+.opz.griglia .op { text-align: center; font-weight: 600; }
+.op:disabled { cursor: default; color: var(--inchiostro); opacity: 1; }
+.op.presa { border: 2px solid var(--inchiostro); padding: 10px 13px; background: var(--fondo); }
+.op.giusta { border: 2px solid var(--ok-filo); padding: 10px 13px; background: var(--ok-fondo); color: var(--ok); }
+.op.sbagliata { border: 2px solid var(--ko-filo); padding: 10px 13px; background: var(--ko-fondo); color: var(--ko); }
+.esito { padding: 12px 14px; border-radius: 12px; background: var(--fondo); }
+.esito.si { background: var(--ok-fondo); color: var(--ok); }
+.esito.no { background: var(--ko-fondo); color: var(--ko); }
+.esito b { display: block; margin-bottom: 2px; }
+.fonti { margin: .6rem 0 0; font-size: .9em; }
+.fonti a { color: inherit; text-decoration: underline; word-break: break-word; }
+.tempo { height: 6px; border-radius: 3px; background: var(--filo); overflow: hidden; }
+.tempo i { display: block; height: 100%; background: var(--inchiostro); width: 100%; }
+.segnale { display: flex; justify-content: center; }
+.segnale svg { width: 130px; height: 130px; }
+.racconto { font-size: 1.06rem; line-height: 1.8; }
+.frase { cursor: pointer; border-bottom: 2px dotted #b4b2a9; padding: 2px 0; }
+.frase.giusta { background: #fac775; border-bottom: 2px solid var(--qua-et); cursor: default; }
+.frase.sbagliata { color: #888780; border-bottom-color: transparent; cursor: default; }
+.frase.scelta { background: var(--com); border-bottom: 2px solid var(--link); }
+.rileggi { background: var(--fondo); border-radius: 12px; padding: 10px 14px; }
+.rileggi summary { cursor: pointer; font-weight: 600; color: var(--link); }
+.rileggi[open] summary { margin-bottom: 8px; }
+.richiesta { white-space: pre-wrap; background: var(--fondo); border: 1px dashed #b4b2a9; border-radius: 12px; padding: 14px; font-size: 0.97rem; user-select: all; -webkit-user-select: all; }
+.risposta { white-space: pre-wrap; background: var(--com); border-radius: 12px; padding: 14px; }
+.barra { height: 10px; border-radius: 5px; background: var(--filo); overflow: hidden; }
+.barra i { display: block; height: 100%; background: var(--inchiostro); }
+.chat { display: flex; flex-direction: column; gap: 8px; }
+.chat .m { max-width: 88%; padding: 9px 13px; border-radius: 14px; white-space: pre-wrap; }
+.chat .m.lui { align-self: flex-start; background: var(--fondo); }
+.chat .m.io { align-self: flex-end; background: var(--inchiostro); color: #fff; }
+.spunta { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; padding: 6px 0; }
+.spunta input { width: 22px; height: 22px; flex: none; margin-top: 1px; accent-color: var(--inchiostro); }
+.piede { display: flex; gap: 8px; align-items: center; padding-top: 4px; }
+.info ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.info p + p, .info ul + p, .info p + ul { margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--filo); vertical-align: top; }
+td.ore { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+.qr { display: flex; justify-content: center; background: #fff; padding: 8px; border-radius: 12px; }
+.qr svg { width: min(100%, 300px); height: auto; }
+.nota-tessera { border-left: 3px solid var(--filo); padding-left: 10px; }
+.nota-tessera .et { font-size: 0.85rem; color: var(--tenue); }
+.nota-tessera .va { white-space: pre-wrap; }
+@media (prefers-reduced-motion: no-preference) {
+  .op, .btn { transition: background-color 0.12s, border-color 0.12s; }
+}
+
+/* colore e vivacità: fasce piene, icone, prossima attività, festa finale */
+.banda { border-radius: 20px; padding: 20px; color: #fff; display: flex; flex-direction: column; gap: 8px; background: var(--tut-forte); }
+.banda h1 { color: #fff; }
+.banda p { color: rgba(255,255,255,.92); }
+.banda .piccolo { font-size: .92rem; }
+.banda.sic { background: var(--sic-forte); } .banda.com, .banda.dir { background: var(--com-forte); } .banda.qua { background: var(--qua-forte); }
+.banda.ia { background: var(--ia-forte); } .banda.casa { background: var(--com-tit); } .banda.ver { background: var(--ver-forte); }
+.tacche.chiare span { background: rgba(255,255,255,.3); height: 8px; }
+.tacche.chiare span.fatta { background: #fff; }
+.ico { flex: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 600 1.1rem var(--testo); line-height: 1; background: var(--tut-ico); color: var(--tut-tit); }
+.voce.sic .ico { color: var(--sic-tit); } .voce.com .ico, .voce.dir .ico { color: var(--com-tit); } .voce.qua .ico { color: var(--qua-tit); } .voce.ia .ico { color: var(--ia-tit); }
+.voce.sic .ico, .ico.sic { background: var(--sic-ico); } .voce.com .ico, .voce.dir .ico, .ico.com, .ico.dir { background: var(--com-ico); }
+.voce.qua .ico, .ico.qua { background: var(--qua-ico); } .voce.ia .ico, .ico.ia { background: var(--ia-ico); } .voce.ver .ico { background: var(--ver-ico); }
+a.voce.ver { background: var(--ver); border-color: transparent; } a.voce.ver .desc { color: var(--ver-et); } a.voce.ver .tit { color: var(--ver-tit); }
+a.voce.fatta .ico { background: var(--ok-fondo); color: var(--ok); font-weight: 700; font-size: 1.3rem; }
+a.voce.lezione .stato { color: inherit; opacity: .8; }
+.voce .ico.segno { font: 600 1.4rem var(--titolo); color: #fff; }
+.voce.sic .ico.segno { background: var(--sic-forte); } .voce.com .ico.segno { background: var(--com-forte); } .voce.ver .ico.segno { background: var(--ver-forte); }
+.continua { display: flex; align-items: center; gap: 14px; text-decoration: none; color: #fff; background: var(--inchiostro); border-radius: 18px; padding: 14px 16px; }
+.continua .ico { background: rgba(255,255,255,.16); color: #fff; }
+.continua .et { display: block; font-size: .85rem; opacity: .8; }
+.continua .tit { display: block; font-size: 1.15rem; font-weight: 600; }
+.continua .freccia { margin-left: auto; font-size: 1.5rem; color: #fff; text-decoration: none; }
+.continua.finito { background: var(--ok-filo); }
+.testa .ico { width: 40px; height: 40px; font-size: 1.3rem; border-radius: 12px; }
+.testa .tit .chip { display: table; margin-top: 3px; font-size: .75rem; padding: 1px 8px; }
+.tacche.sic span.fatta, .tacche.sic span.ora { background: var(--sic-forte); } .tacche.com span.fatta, .tacche.com span.ora, .tacche.dir span.fatta, .tacche.dir span.ora { background: var(--com-forte); }
+.tacche.qua span.fatta, .tacche.qua span.ora { background: var(--qua-forte); } .tacche.ia span.fatta, .tacche.ia span.ora { background: var(--ia-forte); }
+.tacche span.fatta { opacity: .45; }
+.tacche.chiare span.fatta { opacity: 1; }
+.festa { text-align: center; border-radius: 22px; padding: 26px 20px; display: flex; flex-direction: column; gap: 6px; align-items: center; background: var(--tut); color: var(--tut-tit); }
+.festa.sic { background: var(--sic); color: var(--sic-tit); } .festa.com, .festa.dir { background: var(--com); color: var(--com-tit); } .festa.qua { background: var(--qua); color: var(--qua-tit); } .festa.ia { background: var(--ia); color: var(--ia-tit); }
+.festa .grande { width: 64px; height: 64px; border-radius: 50%; border: 3px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; line-height: 1; }
+.festa .piccolo { font-size: .95rem; opacity: .85; }
+.festa h1 { color: inherit; }
+.festa .punti { font: 400 2.6rem/1.1 var(--titolo); }
+.festa .punti small { font: 500 1rem var(--testo); }
+@media (max-width: 360px) { .opz.griglia { grid-template-columns: 1fr; } h1 { font-size: 1.75rem; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Recuperi apprendistato</h1>
+  <p class="sotto">La pagina si sta caricando. Se resta così, ricarica.</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="js/motore.js"></script>
+<script src="js/attivita-a.js"></script>
+<script src="js/attivita-b.js"></script>
+<script src="js/attivita-c.js"></script>
+<script src="js/attivita-d.js"></script>
+<script src="js/risposte.js"></script>
+<script src="js/fonti.js"></script>
+<script>
+APP.link = "https://livioolivero.github.io/campuslab/";
+APP.avvia();
+</script>
+</body>
+</html>
